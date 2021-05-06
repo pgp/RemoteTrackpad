@@ -25,7 +25,11 @@ copy/paste this directory into /sdcard/kivy/touchtracer on your Android device.
 '''
 __version__ = '1.0'
 
+import logging
+import time
+
 from kivy.lang import Builder
+from kivy.utils import platform
 
 """
 Web source:
@@ -69,7 +73,7 @@ class Touchtracer(FloatLayout):
         self.only_click = False
 
     def on_touch_down(self, touch):
-        # print('on touch down')
+        logging.info('on touch down')
         win = self.get_parent_window()
         ud = touch.ud
         ud['group'] = g = str(touch.uid)
@@ -97,8 +101,11 @@ class Touchtracer(FloatLayout):
     def on_touch_move(self, touch):
         if touch.grab_current is not self:
             return
-        # print('on touch move')
-        self.only_click = False
+        logging.error('on touch move')
+        if not self.running_app.is_android:
+            self.only_click = False
+        else:
+            self.only_click = 1 if self.only_click is True else False
         ud = touch.ud
         ud['lines'][0].pos = touch.x, 0
         ud['lines'][1].pos = 0, touch.y
@@ -135,7 +142,6 @@ class Touchtracer(FloatLayout):
                 pass
 
         ud['label'].pos = touch.pos
-        import time
         t = int(time.time())
         if t not in ud:
             ud[t] = 1
@@ -146,13 +152,13 @@ class Touchtracer(FloatLayout):
     def on_touch_up(self, touch):
         if touch.grab_current is not self:
             return
-        # print('on touch up')
+        logging.info('on touch up')
         if self.only_click:
-            print('down + up : click')
+            logging.info('down + up : click')
             try:
                 self.running_app.remote_trackpad.left_click()
             except BaseException as e:
-                print('Remote host disconnected, please reconnect')
+                logging.error('Remote host disconnected, please reconnect')
                 self.running_app.toggle_connect_widgets(False)
             self.only_click = False
         touch.ungrab(self)
@@ -169,12 +175,12 @@ class Touchtracer(FloatLayout):
         if self.running_app.remote_trackpad is not None:
             try:
                 # invert y-axis direction for windows compatibility
-                print(f'Debug x: {touch.x}, type {type(touch.x)}; {touch.y}, type {type(touch.y)}')
+                logging.debug(f'Debug x: {touch.x}, type {type(touch.x)}; {touch.y}, type {type(touch.y)}')
                 xx,yy = int(touch.x), int(max(self.height - touch.y, 0.0))
                 self.running_app.remote_trackpad.move_cursor(xx, yy, start_move)
             except BaseException as e:
-                print(e)
-                print('Remote host disconnected, please reconnect')
+                logging.error(e)
+                logging.error('Remote host disconnected, please reconnect')
                 self.running_app.toggle_connect_widgets(False)
 
 
@@ -184,6 +190,7 @@ class TouchtracerApp(App):
     icon = 'icon.png'
 
     def build(self):
+        self.is_android = platform == 'android'
         self.remote_trackpad = None
         self.tt = Builder.load_file("touchtracer.kv")
         return self.tt
@@ -201,33 +208,33 @@ class TouchtracerApp(App):
         self.root.ids.right_click_btn.disabled = not c
 
     def lck(self):
-        print('Left click kv')
+        logging.debug('Left click kv')
         try:
             self.remote_trackpad.left_click()
         except BaseException as e:
-            print(e)
-            print('Remote host disconnected, please reconnect')
+            logging.error(e)
+            logging.error('Remote host disconnected, please reconnect')
             self.toggle_connect_widgets(False)
 
     def rck(self):
-        print('Right click kv')
+        logging.debug('Right click kv')
         try:
             self.remote_trackpad.right_click()
         except BaseException as e:
-            print(e)
-            print('Remote host disconnected, please reconnect')
+            logging.error(e)
+            logging.error('Remote host disconnected, please reconnect')
             self.toggle_connect_widgets(False)
 
     def connect_remote(self):
         try:
             host = self.root.ids.connect_host_input.text
-            print(f'Trying to connect to: {host}')
+            logging.info(f'Trying to connect to: {host}')
             self.remote_trackpad = RemoteTrackpad()
             self.remote_trackpad.connect(host, port=11111)
-            print('Connected')
+            logging.info('Connected')
             self.toggle_connect_widgets(True)
         except BaseException as e:
-            print(e)
+            logging.error(e)
 
 
 if __name__ == '__main__':
