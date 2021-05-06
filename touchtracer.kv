@@ -1,0 +1,28 @@
+#:kivy 1.0
+#:import kivy kivy
+
+Screen:
+    BoxLayout:
+        orientation: 'vertical'
+
+        Touchtracer:
+            size_hint_y: 0.8
+
+        TextInput:
+            id: connect_host_input
+            size_hint_y: 0.1
+
+        BoxLayout:
+            size_hint_y: 0.1
+            orientation: 'horizontal'
+
+            Button:
+                id: connect_btn
+                text: 'Connect'
+                on_release: app.connect_remote()
+            Button:
+                text: 'Left click'
+                on_release: app.lck()
+            Button:
+                text: 'Right click'
+                on_release: app.rck()

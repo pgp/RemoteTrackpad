@@ -1,0 +1,4 @@
+.idea/
+.buildozer/
+bin/
+__pycache__/
