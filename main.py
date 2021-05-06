@@ -161,7 +161,6 @@ class Touchtracer(FloatLayout):
             except BaseException as e:
                 print(e)
                 print('Remote host disconnected, please reconnect')
-                self.running_app.remote_trackpad = None
                 self.running_app.toggle_connect_widgets(False)
 
 
@@ -179,9 +178,13 @@ class TouchtracerApp(App):
         return True
 
     def toggle_connect_widgets(self, connected):
-        x = not not connected
-        self.root.ids.connect_host_input.disabled = x
-        self.root.ids.connect_btn.disabled = x
+        c = not not connected
+        if not c:
+            self.remote_trackpad = None
+        self.root.ids.connect_host_input.disabled = c
+        self.root.ids.connect_btn.disabled = c
+        self.root.ids.left_click_btn.disabled = not c
+        self.root.ids.right_click_btn.disabled = not c
 
     def lck(self):
         print('Left click kv')
@@ -190,7 +193,7 @@ class TouchtracerApp(App):
         except BaseException as e:
             print(e)
             print('Remote host disconnected, please reconnect')
-            self.remote_trackpad = None
+            self.toggle_connect_widgets(False)
 
     def rck(self):
         print('Right click kv')
@@ -199,7 +202,7 @@ class TouchtracerApp(App):
         except BaseException as e:
             print(e)
             print('Remote host disconnected, please reconnect')
-            self.remote_trackpad = None
+            self.toggle_connect_widgets(False)
 
     def connect_remote(self):
         try:
