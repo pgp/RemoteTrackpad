@@ -66,8 +66,10 @@ class Touchtracer(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.running_app = App.get_running_app()
+        self.only_click = False
 
     def on_touch_down(self, touch):
+        # print('on touch down')
         win = self.get_parent_window()
         ud = touch.ud
         ud['group'] = g = str(touch.uid)
@@ -89,11 +91,14 @@ class Touchtracer(FloatLayout):
         self.update_touch_label(ud['label'], touch, start_move=True)
         self.add_widget(ud['label'])
         touch.grab(self)
+        self.only_click = True
         return True
 
     def on_touch_move(self, touch):
         if touch.grab_current is not self:
             return
+        # print('on touch move')
+        self.only_click = False
         ud = touch.ud
         ud['lines'][0].pos = touch.x, 0
         ud['lines'][1].pos = 0, touch.y
@@ -141,6 +146,15 @@ class Touchtracer(FloatLayout):
     def on_touch_up(self, touch):
         if touch.grab_current is not self:
             return
+        # print('on touch up')
+        if self.only_click:
+            print('down + up : click')
+            try:
+                self.running_app.remote_trackpad.left_click()
+            except BaseException as e:
+                print('Remote host disconnected, please reconnect')
+                self.running_app.toggle_connect_widgets(False)
+            self.only_click = False
         touch.ungrab(self)
         ud = touch.ud
         self.canvas.remove_group(ud['group'])
