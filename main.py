@@ -155,11 +155,7 @@ class Touchtracer(FloatLayout):
         logging.info('on touch up')
         if self.only_click:
             logging.info('down + up : click')
-            try:
-                self.running_app.remote_trackpad.left_click()
-            except BaseException as e:
-                logging.error('Remote host disconnected, please reconnect')
-                self.running_app.toggle_connect_widgets(False)
+            self.running_app.remote_trackpad.left_click()
             self.only_click = False
         touch.ungrab(self)
         ud = touch.ud
@@ -173,16 +169,10 @@ class Touchtracer(FloatLayout):
         label.pos = touch.pos
         label.size = label.texture_size[0] + 20, label.texture_size[1] + 20
         if self.running_app.remote_trackpad is not None:
-            try:
-                # invert y-axis direction for windows compatibility
-                logging.debug(f'Debug x: {touch.x}, type {type(touch.x)}; {touch.y}, type {type(touch.y)}')
-                xx,yy = int(touch.x), int(max(self.height - touch.y, 0.0))
-                self.running_app.remote_trackpad.move_cursor(xx, yy, start_move)
-            except BaseException as e:
-                logging.error(e)
-                logging.error('Remote host disconnected, please reconnect')
-                self.running_app.toggle_connect_widgets(False)
-
+            # invert y-axis direction for windows compatibility
+            logging.debug(f'Debug x: {touch.x}, type {type(touch.x)}; {touch.y}, type {type(touch.y)}')
+            xx,yy = int(touch.x), int(max(self.height - touch.y, 0.0))
+            self.running_app.remote_trackpad.move_cursor(xx, yy, start_move)
 
 
 class TouchtracerApp(App):
@@ -209,30 +199,19 @@ class TouchtracerApp(App):
 
     def lck(self):
         logging.debug('Left click kv')
-        try:
-            self.remote_trackpad.left_click()
-        except BaseException as e:
-            logging.error(e)
-            logging.error('Remote host disconnected, please reconnect')
-            self.toggle_connect_widgets(False)
+        self.remote_trackpad.left_click()
 
     def rck(self):
         logging.debug('Right click kv')
-        try:
-            self.remote_trackpad.right_click()
-        except BaseException as e:
-            logging.error(e)
-            logging.error('Remote host disconnected, please reconnect')
-            self.toggle_connect_widgets(False)
+        self.remote_trackpad.right_click()
 
     def connect_remote(self):
         try:
             host = self.root.ids.connect_host_input.text
             logging.info(f'Trying to connect to: {host}')
-            self.remote_trackpad = RemoteTrackpad()
+            self.remote_trackpad = RemoteTrackpad(self.toggle_connect_widgets)
             self.remote_trackpad.connect(host, port=11111)
             logging.info('Connected')
-            self.toggle_connect_widgets(True)
         except BaseException as e:
             logging.error(e)
 
