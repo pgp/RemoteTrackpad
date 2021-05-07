@@ -183,6 +183,7 @@ class TouchtracerApp(App):
         self.is_android = platform == 'android'
         self.remote_trackpad = None
         self.tt = Builder.load_file("touchtracer.kv")
+        self.remote_trackpad = RemoteTrackpad(self.toggle_connect_widgets)
         return self.tt
 
     def on_pause(self):
@@ -209,11 +210,11 @@ class TouchtracerApp(App):
         try:
             host = self.root.ids.connect_host_input.text
             logging.info(f'Trying to connect to: {host}')
-            self.remote_trackpad = RemoteTrackpad(self.toggle_connect_widgets)
             self.remote_trackpad.connect(host, port=11111)
             logging.info('Connected')
         except BaseException as e:
             logging.error(e)
+            logging.error('Unable to connect')
 
 
 if __name__ == '__main__':
