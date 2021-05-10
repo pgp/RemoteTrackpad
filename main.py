@@ -103,7 +103,7 @@ class Touchtracer(FloatLayout):
     def on_touch_move(self, touch):
         if touch.grab_current is not self:
             return
-        logging.debug('on touch move')
+        # logging.info('on touch move')
         if not self.running_app.is_android:
             self.only_click = False
         else:
@@ -194,8 +194,6 @@ class TouchtracerApp(App):
 
     def toggle_connect_widgets(self, connected):
         c = not not connected
-        if not c:
-            self.remote_trackpad = None
         self.root.ids.connect_host_input.disabled = c
         self.root.ids.connect_btn.disabled = c
         self.root.ids.left_click_btn.disabled = not c
