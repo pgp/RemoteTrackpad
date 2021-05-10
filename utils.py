@@ -18,6 +18,8 @@ class NetworkQueue:
         self.lock = threading.Lock()
         self.T = None
         self.update_ui_method = update_ui_method
+        self.data_available = threading.Event()
+        self.moving = True
 
     def set_sock(self, sock):
         self.sock = sock
@@ -25,6 +27,13 @@ class NetworkQueue:
     def start_thread(self):
         self.T = threading.Thread(target=self.run, args=())
         self.T.start()
+
+    def move_started(self):
+        self.moving = True
+        self.data_available.set()  # resume polling queue
+
+    def move_ended(self):
+        self.moving = False  # from now, flush queue and then wait
 
     def add(self, item: Union[bytes, bytearray]):
         if self.T is not None:
@@ -41,6 +50,10 @@ class NetworkQueue:
                         self.ll = []
                     for x in chunks(l1, 100):
                         self.sock.sendall(b''.join(x))
+                else: # if queue is empty, let's wait
+                    if not self.moving:
+                        self.data_available.wait()
+
         except BaseException as e:
             logging.exception(e)
             logging.error('Remote host disconnected, please reconnect')

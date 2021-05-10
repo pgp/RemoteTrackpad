@@ -96,12 +96,14 @@ class Touchtracer(FloatLayout):
         self.add_widget(ud['label'])
         touch.grab(self)
         self.only_click = True
+        if self.running_app.remote_trackpad is not None:
+            self.running_app.remote_trackpad.motion_started()
         return True
 
     def on_touch_move(self, touch):
         if touch.grab_current is not self:
             return
-        logging.error('on touch move')
+        logging.debug('on touch move')
         if not self.running_app.is_android:
             self.only_click = False
         else:
@@ -161,6 +163,8 @@ class Touchtracer(FloatLayout):
         ud = touch.ud
         self.canvas.remove_group(ud['group'])
         self.remove_widget(ud['label'])
+        if self.running_app.remote_trackpad is not None:
+            self.running_app.remote_trackpad.motion_ended()
 
     def update_touch_label(self, label, touch, start_move):
         label.text = 'ID: %s\nPos: (%d, %d)\nClass: %s' % (
@@ -181,7 +185,6 @@ class TouchtracerApp(App):
 
     def build(self):
         self.is_android = platform == 'android'
-        self.remote_trackpad = None
         self.tt = Builder.load_file("touchtracer.kv")
         self.remote_trackpad = RemoteTrackpad(self.toggle_connect_widgets)
         return self.tt

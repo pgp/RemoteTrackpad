@@ -41,6 +41,14 @@ class RemoteTrackpad(object):
         self.Q.start_thread()
         self.update_ui_method(True)
 
+    def motion_started(self):
+        if self.Q is not None:
+            self.Q.move_started()
+
+    def motion_ended(self):
+        if self.Q is not None:
+            self.Q.move_ended()
+
     def left_click(self):
         if self.Q:
             self.Q.add(self.CODES.LEFTCLICK)
