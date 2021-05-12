@@ -24,8 +24,8 @@ https://kivy.org/doc/stable/examples/gen__demo__touchtracer__main__py.html
 
 def showPopup(data):
     x, y = 400, 400
-    popup = Popup(size_hint=(None, None), size=(x, y), content=HashView(data, 16, 3, x, y), auto_dismiss=True)
-    popup.open()
+    p = Popup(size_hint=(None, None), size=(x, y), content=HashView(data, 16, 3, x, y), auto_dismiss=True)
+    p.open()
 
 def calculate_points(x1, y1, x2, y2, steps=5):
     dx = x2 - x1

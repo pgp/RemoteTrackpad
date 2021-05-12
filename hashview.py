@@ -57,4 +57,4 @@ class HashView(RelativeLayout):
                                                            bb)
                         col = HashView.colors16_ordered[rColor]
                         Color(col.r, col.g, col.b)
-                        Rectangle(size=(self.rSize, self.rSize), pos=(i_ * self.rSize, j_ * self.rSize))
+                        Rectangle(size=(self.rSize, self.rSize), pos=(i_ * self.rSize, (self.gridSize - j_) * self.rSize))
