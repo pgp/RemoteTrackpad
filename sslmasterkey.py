@@ -64,10 +64,9 @@ def get_ssl_master_key(sock):
 
     # Modules/_ssl.c, PySSLSocket
     try:
-        sslconn = sock._sslobj
-    except BaseException as e:
-        logging.exception(e)
         sslconn = sock._sslobj._sslobj
+    except:
+        sslconn = sock._sslobj
     ssl_ptr = PySSLSocket.from_address(id(sslconn)).ssl
 
     # Call SSL_get_client_random with a buffer and format result
