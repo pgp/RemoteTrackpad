@@ -36,9 +36,6 @@ Web source:
 https://kivy.org/doc/stable/examples/gen__demo__touchtracer__main__py.html
 """
 
-import kivy
-# kivy.require('1.0.6')
-
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label

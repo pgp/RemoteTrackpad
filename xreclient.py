@@ -1,8 +1,10 @@
+import hashlib
 import socket
 import ssl
-import pprint
+import logging
 import struct
 
+from sslmasterkey import get_ssl_master_key
 from utils import NetworkQueue
 
 
@@ -31,9 +33,10 @@ class RemoteTrackpad(object):
 
         tls_sock.connect((host,port))
 
-        print(repr(tls_sock.getpeername()))
-        print(tls_sock.cipher())
-        print(pprint.pformat(tls_sock.getpeercert()))
+        logging.info(repr(tls_sock.getpeername()))
+        logging.info(tls_sock.cipher())
+        sha_ = hashlib.sha256(get_ssl_master_key(tls_sock))
+        logging.info(f"SHA256 of this session's master secret:\n{sha_.hexdigest()}")
 
         self.sock = tls_sock
         self.sock.sendall(self.CODES.CONNECT)
