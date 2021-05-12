@@ -1,40 +1,12 @@
-'''
-Touch Tracer Line Drawing Demonstration
-=======================================
-
-This demonstrates tracking each touch registered to a device. You should
-see a basic background image. When you press and hold the mouse, you
-should see cross-hairs with the coordinates written next to them. As
-you drag, it leaves a trail. Additional information, like pressure,
-will be shown if they are in your device's touch.profile.
-
-.. note::
-
-   A function `calculate_points` handling the points which will be drawn
-   has by default implemented a delay of 5 steps. To get more precise visual
-   results lower the value of the optional keyword argument `steps`.
-
-This program specifies an icon, the file icon.png, in its App subclass.
-It also uses the particle.png file as the source for drawing the trails which
-are white on transparent. The file touchtracer.kv describes the application.
-
-The file android.txt is used to package the application for use with the
-Kivy Launcher Android application. For Android devices, you can
-copy/paste this directory into /sdcard/kivy/touchtracer on your Android device.
-
-'''
 __version__ = '1.0'
 
-import logging
 import time
 
 from kivy.lang import Builder
+from kivy.uix.popup import Popup
 from kivy.utils import platform
 
-"""
-Web source:
-https://kivy.org/doc/stable/examples/gen__demo__touchtracer__main__py.html
-"""
+from hashview import HashView
 
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
@@ -45,6 +17,15 @@ from math import sqrt
 
 from xreclient import *
 
+"""
+Web source:
+https://kivy.org/doc/stable/examples/gen__demo__touchtracer__main__py.html
+"""
+
+def showPopup(data):
+    x, y = 400, 400
+    popup = Popup(size_hint=(None, None), size=(x, y), content=HashView(data, 16, 3, x, y), auto_dismiss=True)
+    popup.open()
 
 def calculate_points(x1, y1, x2, y2, steps=5):
     dx = x2 - x1
@@ -183,7 +164,7 @@ class TouchtracerApp(App):
     def build(self):
         self.is_android = platform == 'android'
         self.tt = Builder.load_file("touchtracer.kv")
-        self.remote_trackpad = RemoteTrackpad(self.toggle_connect_widgets)
+        self.remote_trackpad = RemoteTrackpad(self.toggle_connect_widgets, showPopup)
         return self.tt
 
     def on_pause(self):

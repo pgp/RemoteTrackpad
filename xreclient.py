@@ -18,11 +18,12 @@ class RemoteTrackpad(object):
         LEFTCLICK = b'\xF2'
         RIGHTCLICK = b'\xF3'
 
-    def __init__(self, update_ui_method) -> None:
+    def __init__(self, update_ui_method, hv_method) -> None:
         super().__init__()
         self.sock = None
         self.Q = None
         self.update_ui_method = update_ui_method
+        self.hv_method = hv_method
 
     def connect(self, host='127.0.0.1', port=11111):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,6 +38,8 @@ class RemoteTrackpad(object):
         logging.info(tls_sock.cipher())
         sha_ = hashlib.sha256(get_ssl_master_key(tls_sock))
         logging.info(f"SHA256 of this session's master secret:\n{sha_.hexdigest()}")
+
+        self.hv_method(sha_.digest())
 
         self.sock = tls_sock
         self.sock.sendall(self.CODES.CONNECT)
