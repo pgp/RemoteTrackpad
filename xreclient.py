@@ -21,16 +21,27 @@ class RemoteTrackpad(object):
     def __init__(self, update_ui_method, hv_method) -> None:
         super().__init__()
         self.sock = None
+        self.plain_sock = None
         self.Q = None
         self.update_ui_method = update_ui_method
         self.hv_method = hv_method
 
+    def disconnect(self):
+        try:
+            self.plain_sock.shutdown(socket.SHUT_RDWR)
+            logging.info('Disconnected')
+        except:
+            logging.error('Unable to disconnect, already disconnected?')
+        self.sock = None
+        self.plain_sock = None
+        self.update_ui_method(False)
+
     def connect(self, host='127.0.0.1', port=11111):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(1.0)
+        self.plain_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.plain_sock.settimeout(1.0)
 
         # Do not require a certificate from the server, visual end-to-end verification should be used
-        tls_sock = ssl.wrap_socket(s, cert_reqs=ssl.CERT_NONE)
+        tls_sock = ssl.wrap_socket(self.plain_sock, cert_reqs=ssl.CERT_NONE)
 
         tls_sock.connect((host,port))
 

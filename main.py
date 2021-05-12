@@ -165,6 +165,7 @@ class TouchtracerApp(App):
         self.is_android = platform == 'android'
         self.tt = Builder.load_file("touchtracer.kv")
         self.remote_trackpad = RemoteTrackpad(self.toggle_connect_widgets, showPopup)
+        self.is_connected = False
         return self.tt
 
     def on_pause(self):
@@ -172,8 +173,9 @@ class TouchtracerApp(App):
 
     def toggle_connect_widgets(self, connected):
         c = not not connected
+        self.is_connected = c
         self.root.ids.connect_host_input.disabled = c
-        self.root.ids.connect_btn.disabled = c
+        self.root.ids.connect_btn.text = 'Disconnect' if c else 'Connect'
         self.root.ids.left_click_btn.disabled = not c
         self.root.ids.right_click_btn.disabled = not c
 
@@ -186,14 +188,17 @@ class TouchtracerApp(App):
         self.remote_trackpad.right_click()
 
     def connect_remote(self):
-        try:
-            host = self.root.ids.connect_host_input.text
-            logging.info(f'Trying to connect to: {host}')
-            self.remote_trackpad.connect(host, port=11111)
-            logging.info('Connected')
-        except BaseException as e:
-            logging.error(e)
-            logging.error('Unable to connect')
+        if not self.is_connected:
+            try:
+                host = self.root.ids.connect_host_input.text
+                logging.info(f'Trying to connect to: {host}')
+                self.remote_trackpad.connect(host, port=11111)
+                logging.info('Connected')
+            except BaseException as e:
+                logging.error(e)
+                logging.error('Unable to connect')
+        else:
+            self.remote_trackpad.disconnect()
 
 
 if __name__ == '__main__':
