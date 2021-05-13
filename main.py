@@ -133,8 +133,8 @@ class Touchtracer(FloatLayout):
         logging.info('on touch up')
         if self.only_click:
             logging.info('down + up : click')
-            self.running_app.remote_trackpad.left_down()
-            self.running_app.remote_trackpad.left_up()
+            self.running_app.left_down()
+            self.running_app.left_up()
             self.only_click = False
         touch.ungrab(self)
         ud = touch.ud
