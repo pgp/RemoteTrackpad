@@ -28,20 +28,27 @@ class RemoteTrackpad(object):
 
     def disconnect(self):
         try:
-            self.plain_sock.shutdown(socket.SHUT_RDWR)
-            logging.info('Disconnected')
+            self.sock.shutdown(socket.SHUT_RDWR)
         except:
-            logging.error('Unable to disconnect, already disconnected?')
+            pass
+        try:
+            self.plain_sock.shutdown(socket.SHUT_RDWR)
+        except:
+            pass
+        logging.info('Disconnected')
         self.sock = None
         self.plain_sock = None
         self.update_ui_method(False)
 
     def connect(self, host='127.0.0.1', port=11111):
-        self.plain_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.plain_sock.settimeout(1.0)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1.0)
+
+        self.plain_sock = s.dup() # we don't want to lose access to the plain TCP socket, since wrap_socket seems to close
+        # the original one after embedding it
 
         # Do not require a certificate from the server, visual end-to-end verification should be used
-        tls_sock = ssl.wrap_socket(self.plain_sock, cert_reqs=ssl.CERT_NONE)
+        tls_sock = ssl.wrap_socket(s, cert_reqs=ssl.CERT_NONE)
 
         tls_sock.connect((host,port))
 
