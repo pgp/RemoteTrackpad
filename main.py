@@ -74,8 +74,6 @@ class Touchtracer(FloatLayout):
         self.add_widget(ud['label'])
         touch.grab(self)
         self.only_click = True
-        if self.running_app.remote_trackpad is not None:
-            self.running_app.remote_trackpad.motion_started()
         return True
 
     def on_touch_move(self, touch):
@@ -135,14 +133,13 @@ class Touchtracer(FloatLayout):
         logging.info('on touch up')
         if self.only_click:
             logging.info('down + up : click')
-            self.running_app.remote_trackpad.left_click()
+            self.running_app.remote_trackpad.left_down()
+            self.running_app.remote_trackpad.left_up()
             self.only_click = False
         touch.ungrab(self)
         ud = touch.ud
         self.canvas.remove_group(ud['group'])
         self.remove_widget(ud['label'])
-        if self.running_app.remote_trackpad is not None:
-            self.running_app.remote_trackpad.motion_ended()
 
     def update_touch_label(self, label, touch, start_move):
         label.text = 'ID: %s\nPos: (%d, %d)\nClass: %s' % (
@@ -169,7 +166,22 @@ class TouchtracerApp(App):
         return self.tt
 
     def on_pause(self):
+        try:
+            self.remote_trackpad.Q.paused = True
+            logging.info('Sent pause event')
+        except:
+            logging.info('Not connected, no pause event to send')
+            pass
         return True
+
+    def on_resume(self):
+        try:
+            self.remote_trackpad.Q.paused = False
+            self.remote_trackpad.Q.data_available.set()
+            logging.info('Sent resume event')
+        except:
+            logging.info('Not connected, no resume event to send')
+            pass
 
     def toggle_connect_widgets(self, connected):
         c = not not connected
