@@ -18,6 +18,11 @@ class RemoteTrackpad(object):
         LEFTCLICK = b'\xF2'
         RIGHTCLICK = b'\xF3'
 
+        LEFTDOWN = b'\xF4'
+        LEFTUP = b'\xF5'
+        RIGHTDOWN = b'\xF6'
+        RIGHTUP = b'\xF7'
+
     def __init__(self, update_ui_method, hv_method) -> None:
         super().__init__()
         self.sock = None
@@ -73,13 +78,9 @@ class RemoteTrackpad(object):
         if self.Q is not None:
             self.Q.move_ended()
 
-    def left_click(self):
+    def mouse_buttons(self, code):
         if self.Q:
-            self.Q.add(self.CODES.LEFTCLICK)
-
-    def right_click(self):
-        if self.Q:
-            self.Q.add(self.CODES.RIGHTCLICK)
+            self.Q.add(code)
 
     def move_cursor(self, x, y, start_move=False):
         if self.Q:

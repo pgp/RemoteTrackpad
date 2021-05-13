@@ -179,13 +179,21 @@ class TouchtracerApp(App):
         self.root.ids.left_click_btn.disabled = not c
         self.root.ids.right_click_btn.disabled = not c
 
-    def lck(self):
-        logging.debug('Left click kv')
-        self.remote_trackpad.left_click()
+    def left_down(self):
+        logging.debug('Left down kv')
+        self.remote_trackpad.mouse_buttons(self.remote_trackpad.CODES.LEFTDOWN)
 
-    def rck(self):
-        logging.debug('Right click kv')
-        self.remote_trackpad.right_click()
+    def left_up(self):
+        logging.debug('Left up kv')
+        self.remote_trackpad.mouse_buttons(self.remote_trackpad.CODES.LEFTUP)
+
+    def right_down(self):
+        logging.debug('Right down kv')
+        self.remote_trackpad.mouse_buttons(self.remote_trackpad.CODES.RIGHTDOWN)
+
+    def right_up(self):
+        logging.debug('Right up kv')
+        self.remote_trackpad.mouse_buttons(self.remote_trackpad.CODES.RIGHTUP)
 
     def connect_remote(self):
         if not self.is_connected:

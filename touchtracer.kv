@@ -27,9 +27,11 @@ Screen:
                 id: left_click_btn
                 text: 'Left click'
                 disabled: True
-                on_release: app.lck()
+                on_press: app.left_down()
+                on_release: app.left_up()
             Button:
                 id: right_click_btn
                 text: 'Right click'
                 disabled: True
-                on_release: app.rck()
+                on_press: app.right_down()
+                on_release: app.right_up()
