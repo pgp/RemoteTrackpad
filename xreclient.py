@@ -11,7 +11,7 @@ from utils import NetworkQueue
 class RemoteTrackpad(object):
 
     class CODES:
-        CONNECT = b'\x1E'
+        CONNECT = b'\x1E\x21\x00'
 
         START_MOVE = b'\xF0'
         MOVE = b'\xF1'
